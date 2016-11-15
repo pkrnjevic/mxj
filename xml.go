@@ -898,6 +898,35 @@ func mapToXmlIndent(doIndent bool, s *string, key string, value interface{}, pp 
 			}
 		}
 		return nil
+	case Map:
+		if doIndent {
+			*s += p.padding
+		}
+		*s += "<" + key + ">\n"
+		// special case - pk
+		if len(value.(Map)) == 0 {
+			if doIndent {
+				*s += p.padding + p.indent
+			}
+			*s += "<" + key
+			elen = 0
+			endTag = true
+			break
+		}
+		for k, v := range value.(Map) {
+			if doIndent {
+				p.Indent()
+			}
+			mapToXmlIndent(doIndent, s, k, v, p)
+			if doIndent {
+				p.Outdent()
+			}
+		}
+		if doIndent {
+			*s += p.padding
+		}
+		*s += "</" + key + ">\n"
+		return nil
 	case nil:
 		// terminate the tag
 		*s += "<" + key
